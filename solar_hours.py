@@ -31,16 +31,10 @@ def main():
         print("There's no sun light!")
         exit(1)
 
-
-
-    with open(save_file, 'rw') as sf:
-        sf.write(response.content)
-
-
 class SunData:
-    def __init__(self):
+    def __init__(self, lat=-37.9845511, lng=145.2645971):
         self.today = datetime.today()
-        self.sun_data = self.sun_api()
+        self.sun_data = self.sun_api(lat, lng)
         self.tz_delta = timedelta(hours=self.get_tz_delta())
 
 
@@ -66,12 +60,12 @@ class SunData:
         now = datetime.now()
         return now > self.get_sun_rise() and now < self.get_sun_set()
 
-    def sun_api(self):
+    def sun_api(self, lat, lng):
         cache_result = self.check_cache()
         if cache_result:
             result = json.loads(cache_result)
         else:
-            rest_url = "https://api.sunrise-sunset.org/json?lat=-37.9845511&lng=145.2645971&date=today"
+            rest_url = "https://api.sunrise-sunset.org/json?lat={0}&lng={1}&date=today".format(lat, lng)
             response = requests.get(rest_url)
             result = json.loads(response.content)
             self.update_cache(response.content)
