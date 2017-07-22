@@ -34,6 +34,7 @@ def main():
 class SunData:
     def __init__(self, lat=-37.9845511, lng=145.2645971):
         self.today = datetime.today()
+        self.cache = '/tmp/sun_data'
         self.sun_data = self.sun_api(lat, lng)
         self.tz_delta = timedelta(hours=self.get_tz_delta())
 
@@ -72,18 +73,15 @@ class SunData:
         return result['results']
 
     def check_cache(self):
-        cache = '/tmp/sun_data'
-        if os.path.exists(cache) and self.today < datetime.fromtimestamp(os.path.getmtime(cache)) + timedelta(hours=24):
-            cache_result = file.read(open(cache, 'r'))
+        if os.path.exists(self.cache) and self.today < datetime.fromtimestamp(os.path.getmtime(self.cache)) + timedelta(hours=24):
+            cache_result = file.read(open(self.cache, 'r'))
             return cache_result
         else:
             return False
 
     def update_cache(self, result):
-        cache = '/tmp/sun_data'
-        with open(cache, 'w') as f:
+        with open(self.cache, 'w') as f:
             f.write(result)
-
 
     def get_tz_delta(self):
         offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
