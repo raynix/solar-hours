@@ -67,7 +67,7 @@ class SunData:
         else:
             rest_url = "https://api.sunrise-sunset.org/json?lat={0}&lng={1}&date=today".format(lat, lng)
             response = requests.get(rest_url)
-            result = json.loads(response.content)
+            result = json.loads(response.content.decode('utf8'))
             self.update_cache(response.content)
         return result['results']
 
