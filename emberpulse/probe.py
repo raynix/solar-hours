@@ -2,6 +2,7 @@ import os
 import re
 import time
 import json
+import argparse
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -38,6 +39,9 @@ def ember_login(args, driver):
   elem_pwd.send_keys(args.ember_pass)
   elem_btn.click()
   assert "Home" in driver.title
+  if args.debug:
+    print('Login succeeded.')
+  time.sleep(20)
 
 def ember_read_solar(driver):
   elem_solar = driver.find_element_by_id('solar-icon-readout')
@@ -68,7 +72,11 @@ def main():
         'solar': ember_read_solar(driver),
         'load': ember_read_home_load(driver)
       }
-      push_points(args, solar_data=)
+      push_points(args, solar_data=solar_data)
       time.sleep(15)
   finally:
     driver.close()
+
+if __name__  == '__main__':
+  main()
+
