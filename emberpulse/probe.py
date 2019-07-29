@@ -10,18 +10,17 @@ from influxdb import InfluxDBClient
 
 def push_points(args, solar_data):
   json_body = []
-  for metric_key, metric_value in solar_data.items():
-    json_body.append(
-      {
-        "measurement": "electricity",
-        "tags": {
-          "metric": metric_key
-        },
-        "fields": {
-          "value": metric_value
-        }
+  json_body.append(
+    {
+      "measurement": "electricity",
+      "tags": {
+        "metric": "emberpulse"
+      },
+      "fields": {
+        metric_key: metric_value for metric_key, metric_value in solar_data.items()
       }
-    )
+    }
+  )
   if args.debug:
     print(json.dumps(json_body))
   client = InfluxDBClient(args.influx_host, args.influx_port, args.influx_user)
@@ -45,11 +44,11 @@ def ember_login(args, driver):
 
 def ember_read_solar(driver):
   elem_solar = driver.find_element_by_id('solar-icon-readout')
-  return re.match('^([0-9]+)', elem_solar.text).group(0)
+  return int(re.match('^([0-9]+)', elem_solar.text).group(0))
 
 def ember_read_home_load(driver):
   elem_load = driver.find_element_by_id('home-icon-readout')
-  return re.match('^([0-9]+)', elem_load.text).group(0)
+  return int(re.match('^([0-9]+)', elem_load.text).group(0))
 
 def main():
   parser = argparse.ArgumentParser(description="Usage for solar system probe")
