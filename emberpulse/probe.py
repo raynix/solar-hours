@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import json
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -20,6 +21,8 @@ def push_points(args, solar_data):
         }
       }
     )
+  if args.debug:
+    print(json.dumps(json_body))
   client = InfluxDBClient(args.influx_host, args.influx_port, args.influx_user)
   client.write_points(json_body, database=args.influx_database)
 
@@ -52,15 +55,20 @@ def main():
   parser.add_argument('--influx-database', type=str, default='energy')
   parser.add_argument('--ember-user', type=str, default=os.environ['EMBERUSER'])
   parser.add_argument('--ember-pass', type=str, default=os.environ['EMBERPASS'])
+  parser.add_argument('--debug', action='store_true')
+
 
   args = parser.parse_args()
 
   driver = selenium_firefox()
-  ember_login(args, driver)
-  while True:
-    solar_data = {
-      'solar': ember_read_solar(driver),
-      'load': ember_read_home_load(driver)
-    }
-    push_points(args, solar_data=)
-    time.sleep(15)
+  try:
+    ember_login(args, driver)
+    while True:
+      solar_data = {
+        'solar': ember_read_solar(driver),
+        'load': ember_read_home_load(driver)
+      }
+      push_points(args, solar_data=)
+      time.sleep(15)
+  finally:
+    driver.close()
